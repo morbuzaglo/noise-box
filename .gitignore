@@ -1,0 +1,20 @@
+# Copyrighted standards and supplied reference documents: never publish
+*.pdf
+*.PNG
+*.png
+!docs/**/*.png
+claude_local_acoustics_webapp_prompt.txt
+
+# Generated or local-only
+samples/
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+.env
+.claude/
+.idea/
+.vscode/
