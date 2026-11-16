@@ -1,4 +1,4 @@
-function r = nb_bench_run(id)
+function r = nb_bench_run(id, modeOverride)
 %NB_BENCH_RUN Execute one ISO/TR 17534-3 test case with the production code.
 %   r = NB_BENCH_RUN('T08'). The case is solved through the SAME functions the
 %   application uses (nb_receiver_3d -> run_acoustic_case, or run_acoustic_case
@@ -11,6 +11,7 @@ function r = nb_bench_run(id)
 %     expected, actual, err = actual - expected, tol, pass (logical)
 %   plus r.status 'PASS' | 'FAIL' | 'BLOCKED', r.geometry diagnostics.
 c = nb_bench_cases(id);
+if nargin > 1 && ~isempty(modeOverride), c.mode = modeOverride; end   % compare the same scene in another mode (informative only)
 b = nb_bands();
 r.id = id;  r.title = c.title;  r.group = c.group;  r.ref = c.ref;  r.notes = c.notes;
 r.mode = c.mode;  r.blockedReason = c.blocked;  r.tol = c.tol;
