@@ -75,4 +75,4 @@ Limits: hull-based, exact for convex cross-sections. A concave footprint with a 
 | Mass law | `TL = 20 lg(pi f m / (rho0 c))`, `rho0 c = 415`; floored at 0 | `confidence: rough estimate` |
 | Bottom gap of a hanging screen | extra lateral-style path over the bottom edge | `geom.under` |
 | Source enclosure | diffuse-field model `L_W,out = L_W,in + 10 lg(4/A) - TL + 10 lg S - 6` | `enclosure.warnings` |
-| Octave filters | custom 6th-order Butterworth (Signal Processing Toolbox) | not verified for IEC 61260-1 |
+| Octave filters | custom 6th-order Butterworth (`nb_butter_sos`, base MATLAB; matches `butter` to 3e-8 dB and scipy) | not verified for IEC 61260-1 |

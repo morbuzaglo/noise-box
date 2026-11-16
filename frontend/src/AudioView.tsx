@@ -212,7 +212,7 @@ export default function AudioView({ G, atm, onUse }: Props) {
               <button className="primary" disabled={busy || sel[1] - sel[0] < 0.1 || (cal === "calibrator" && !calRec)} onClick={() => void analyse()}>
                 {busy ? "Analysing" : "Analyse selection"}
               </button>
-              <p className="note">Octave filters: custom 6th-order Butterworth bank (Signal Processing Toolbox), not verified for IEC 61260-1 class conformance.</p>
+              <p className="note">Octave filters: custom 6th-order Butterworth bank (no toolbox needed), not verified for IEC 61260-1 class conformance.</p>
             </div>
           </div>
 

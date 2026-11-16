@@ -126,6 +126,8 @@ T{end+1} = mk('G1-compliance', G1, 'One exceeded band fails the point although d
     @() complianceCase());
 T{end+1} = mk('G1-octave-tone', G1, 'Octave filter bank reads a 1 kHz tone of 0.1 rms at -20 dB re 1 unit', 'hand: 20 lg(0.1); tolerance 0.15 dB from the custom Butterworth bank (NOT verified for IEC 61260-1)', {'nb_octave_spl'}, ...
     @() toneCase());
+T{end+1} = mk('G1-butter-sos', G1, 'Butterworth band-pass design (no toolbox): -3.0103 dB at both edges, 0 dB at the centre, stable', 'analytic: |H|^2 = 1/2 at the -3 dB edges, 10 lg(1/2) = -3.0103 dB; unity gain at the warped-axis centre; also compared with butter() and scipy offline', {'nb_butter_sos'}, ...
+    @() butterCase());
 T{end+1} = mk('G1-factor8', G1, 'Lateral path beyond 8x the vertical support distance is neglected (2024 mode)', 'ISO 9613-2:2024 7.4.3, printed p. 19 (long wall, edges 100 m off the line)', {'nb_receiver_3d','nb_lateral'}, ...
     @() factor8Case());
 
@@ -212,6 +214,20 @@ fs = 44100;  t = (0:fs*10-1)'/fs;
 x = 0.1*sqrt(2)*sin(2*pi*1000*t);
 s = nb_octave_spl(x, fs, 2*fs, 9*fs, []);
 r = row({'L 1000 Hz band'}, 20*log10(0.1), s.L(5), 0.15);
+end
+
+function r = butterCase()
+fs = 48000;  f1 = 707.1;  f2 = 1414.2;
+S = nb_butter_sos(3, [f1 f2]/(fs/2));
+dB = @(f) 20*log10(abs(sosResp(S, 2*pi*f/fs)));
+fo = atan(sqrt(tan(pi*f1/fs)*tan(pi*f2/fs)))*fs/pi;      % centre on the bilinear-warped axis
+rad = 0;  for k = 1:size(S,1), rad = max(rad, max(abs(roots(S(k,4:6))))); end
+r = row({'edge f1 (dB)', 'edge f2 (dB)', 'centre (dB)', 'max pole radius < 1'}, [10*log10(0.5), 10*log10(0.5), 0, 1], [dB(f1), dB(f2), dB(fo), 1 + (rad >= 1)], 0.001);
+end
+
+function H = sosResp(S, w)
+H = 1;  e = exp(-1j*w);
+for k = 1:size(S,1), H = H * (S(k,1) + S(k,2)*e + S(k,3)*e^2) / (S(k,4) + S(k,5)*e + S(k,6)*e^2); end
 end
 
 function r = factor8Case()

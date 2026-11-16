@@ -35,6 +35,7 @@ export default function DiagnosticsView() {
       )}
       {d?.matlab && (
         <table>
+          <caption className="note" style={{ textAlign: "left" }}>For information only: the solver uses base MATLAB and needs none of these toolboxes.</caption>
           <thead><tr><th>Toolbox</th><th>Licensed</th></tr></thead>
           <tbody>{d.matlab.toolboxes.map((t, i) => <tr key={t}><td>{t}</td><td className={d.matlab!.licensed[i] ? "okc" : "muted"}>{d.matlab!.licensed[i] ? "yes" : "no"}</td></tr>)}</tbody>
         </table>

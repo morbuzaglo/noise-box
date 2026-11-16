@@ -10,12 +10,12 @@ function r = nb_octave_spl(x, fs, i0, i1, paPerUnit)
 %     calibrated   L = 20 log10(p_rms / 20e-6), dB re 20 uPa (UNWEIGHTED)
 %     uncalibrated L = 20 log10(rms) in dB re one digital RMS unit
 %                  (relative only; r.absolute = false)
-%   FILTER BANK: 6th-order Butterworth band-pass (butter(3, [f1 f2]) from
-%   the Signal Processing Toolbox), exact base-10 centre frequencies
+%   FILTER BANK: 6th-order Butterworth band-pass designed by nb_butter_sos
+%   (base MATLAB, no toolbox), exact base-10 centre frequencies
 %   fm = 1000*10^(0.3 n), edges fm*10^(+-0.15), causal sosfilt, 1 s
 %   pre-roll. This is a CUSTOM filter bank: it has NOT been verified for
-%   IEC 61260-1 class 1 or 2 conformance (Audio Toolbox's octaveFilter is
-%   not licensed here). Bands whose upper edge exceeds Nyquist are NaN.
+%   IEC 61260-1 class 1 or 2 conformance. Bands whose upper edge exceeds
+%   Nyquist are NaN.
 %   RMS is the plain mean-square over the interval (linear energy mean,
 %   not an average of dB values).
 b = nb_bands();
@@ -45,8 +45,7 @@ for k = 1:8
         w{end+1} = sprintf('%d Hz band skipped: upper edge %.0f Hz is too close to Nyquist (%.0f Hz).', b.f(k), f2, fs/2); %#ok<AGROW>
         continue
     end
-    [z, p, kk] = butter(3, [f1 f2]/(fs/2), 'bandpass');
-    sos = zp2sos(z, p, kk);
+    sos = nb_butter_sos(3, [f1 f2]/(fs/2));
     y = sosfilt_(sos, seg);
     yy = y(pre+1:end);
     rms(k) = sqrt(mean(yy.^2));

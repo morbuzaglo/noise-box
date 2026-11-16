@@ -14,8 +14,7 @@ x = x(:);
 if i0 < 1 || i1 > numel(x) || i1 - i0 < round(0.5*fs), error('nb:calibrate:interval', 'Calibrator interval must be at least 0.5 s.'); end
 if f_cal >= fs/2*0.9, error('nb:calibrate:fcal', 'Calibrator frequency too close to Nyquist.'); end
 seg = x(i0:i1);
-[z, p, k] = butter(2, [0.9 1.1]*f_cal/(fs/2), 'bandpass');
-sos = zp2sos(z, p, k);
+sos = nb_butter_sos(2, [0.9 1.1]*f_cal/(fs/2));
 y = seg;
 for s = 1:size(sos,1), y = filter(sos(s,1:3), sos(s,4:6), y); end
 y = y(round(0.2*numel(y)):end);                          % drop filter start-up

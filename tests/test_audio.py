@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 from scipy.io import wavfile
 
-from conftest import mvec
+from conftest import CORE, mvec
 
 FS = 44100
 BANDS = [63, 125, 250, 500, 1000, 2000, 4000, 8000]
@@ -203,3 +203,35 @@ def test_full_pipeline_recording_to_lw(eng, tmp_path):
     est = {"g": {"hs": 1.5, "hm": 1.2, "dp": 30.0, "dh": 0.0}, "G": G, "atm": atm}
     r = analyse(eng, path, 2.0, 9.0, paPerUnit=pa_per_unit, estimate=est)
     assert mvec(r["lw"]["Lw"])[4] == pytest.approx(100.0, abs=0.2)           # recovered through filter bank + inverse chain
+
+
+# ---------------------------------------------------------------- no toolbox dependency
+def test_butter_sos_matches_scipy(eng):
+    # nb_butter_sos replaces butter()+zp2sos() of the Signal Processing Toolbox. scipy is an independent implementation.
+    from scipy import signal
+
+    worst = 0.0
+    for fs in (22050, 44100, 48000, 96000):
+        for order, f1, f2 in [(3, 44.5, 89.1), (3, 707.1, 1414.2), (3, 5657.0, 11314.0), (2, 900.0, 1100.0), (2, 225.0, 275.0)]:
+            wn = [f1 / (fs / 2), f2 / (fs / 2)]
+            if wn[1] >= 0.98:
+                continue
+            got = np.array(eng.nb_butter_sos(float(order), matlab.double([wn])))
+            ref = signal.butter(order, wn, btype="bandpass", output="sos")
+            w = np.pi * np.logspace(np.log10(wn[0] / 20), np.log10(min(0.999, wn[1] * 8)), 1500)
+            _, h_got = signal.sosfreqz(got, worN=w)
+            _, h_ref = signal.sosfreqz(ref, worN=w)
+            worst = max(worst, float(np.max(np.abs(20 * np.log10(np.abs(h_got) / np.abs(h_ref))))))
+            assert got.shape == (order, 6)
+            assert np.all(np.abs(np.roots(got[0, 3:6])) < 1.0)
+    assert worst < 1e-6, f"worst response difference {worst:.3e} dB"
+
+
+def test_solver_library_needs_no_toolbox(eng):
+    # Ask MATLAB which products every .m file of the library depends on: base MATLAB only.
+    eng.eval(
+        "fl = dir(fullfile('%s','*.m')); nm = fullfile({fl.folder},{fl.name});"
+        "[~,pr] = matlab.codetools.requiredFilesAndProducts(nm); prodNames = strjoin({pr.Name}, '|');" % str(CORE).replace("\\", "/"),
+        nargout=0,
+    )
+    assert eng.workspace["prodNames"] == "MATLAB", eng.workspace["prodNames"]
