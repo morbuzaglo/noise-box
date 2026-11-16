@@ -29,7 +29,6 @@ export default function EnclosureEditor({ value, onChange }: { value: EncState; 
   const set = (p: Partial<EncState>) => onChange({ ...value, ...p });
   return (
     <div>
-      <h2>Source enclosure (optional)</h2>
       <label className="field">
         <span>Enclose the source in a material</span>
         <input type="checkbox" checked={value.on} onChange={(e) => set({ on: e.target.checked })} />

@@ -16,8 +16,9 @@ The ISO standards and the DAmd 1 screenshot are copyrighted and are **not** in t
 - Top and lateral diffraction (ISO 9613-2:2024 7.4), ground, atmosphere, `C_met` only on request.
 - Per-band limits: a point is PASS only if **every** limited band passes; maps, per-point inspector, margins.
 - Projects and cases (SQLite + directories): **open a stored case in its editor view** (3D terrain, 2D section or flat point), edit it, run it, click points, save changes; duplicate-and-change, comparison, **one Excel workbook with one sheet per case**, CSV, PNG map export.
-- **Test Lab**: 61 registered tests, ISO/TR 17534-3 T01-T19 (15 run, 4 blocked), reports and a JSON log.
+- **Test Lab**: 62 registered tests, ISO/TR 17534-3 T01-T19 (15 run, 4 blocked), reports and a JSON log.
 - MATLAB **hot reload**: edit a `.m` file, the next run uses it; caches are keyed on the code hashes.
+- **Workbench UI**: view rail (Alt+1..7), collapsible sections, resizable and collapsible side panels (Ctrl+B, Ctrl+Shift+B), light/dark theme, status bar, edited-parameter markers with per-field reset, undo/redo of the shared parameters (Ctrl+Z / Ctrl+Shift+Z outside text fields), parameter presets (saved in the browser), command palette that searches every parameter, view and action (Ctrl+K), in-app confirm dialogs and toasts, CSV export of the point result. These are presentation only: the values sent to the solver are unchanged.
 
 Three calculation modes are never mixed: `iso2024` (published), `draft2026` (DRAFT DAmd 1 eqs. 18/21, experimental) and `iso1996` (compatibility for the ISO/TR benchmarks). See `docs/FORMULA_MATRIX.md`.
 
@@ -25,7 +26,7 @@ Three calculation modes are never mixed: `iso2024` (published), `draft2026` (DRA
 
 | Need | Notes |
 |---|---|
-| MATLAB with the Engine API for Python | the full MATLAB install (Runtime alone is not enough). R2023a supports Python 3.8-3.10. Signal Processing Toolbox is used for octave filtering; Audio Toolbox is **not** required |
+| MATLAB with the Engine API for Python | the full MATLAB install (Runtime alone is not enough). R2023a supports Python 3.8-3.10. **No MATLAB toolbox is required**: the solver uses base MATLAB only (the octave filters are designed by `nb_butter_sos.m`; `tests/test_audio.py` asserts via `requiredFilesAndProducts` that no `.m` file needs a toolbox) |
 | Python 3.10 | the default Python 3.12 is not supported by R2021a/R2023a Engines |
 | Node.js 18+ | frontend build and dev server |
 
@@ -53,7 +54,7 @@ matlab/core/        the numerical solver (nb_* functions, run_* entry points, Te
 backend/app/        FastAPI: matlab_worker (single Engine thread, hot reload), main (API), dem, audio,
                     store (SQLite + project dirs), projects_api, export_xlsx, testlab_api
 frontend/src/       React views: point, 2D section, 3D terrain, audio, projects, Test Lab, diagnostics
-tests/              pytest suite (real MATLAB), 191 tests
+tests/              pytest suite (real MATLAB), 193 tests
 tools/make_samples.py  synthetic demo data -> samples/
 docs/               FORMULA_MATRIX.md, VALIDATION_REPORT.md
 ```

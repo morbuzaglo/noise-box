@@ -3,6 +3,7 @@ import {
   BANDS, CaseRow, Comparison, ProjectRow, compareCases, createProject, deleteCase, deleteProject, duplicateCase, duplicateProject,
   exportUrl, getCase, getProject, listProjects, patchProject, runStoredCase,
 } from "./api";
+import { confirmDialog, promptDialog } from "./ui";
 
 const f1 = (v: number | null | undefined) => (v == null ? "no data" : v.toFixed(1));
 const when = (t: number | null) => (t ? new Date(t * 1000).toLocaleString() : "not run");
@@ -98,9 +99,9 @@ export default function ProjectsView({ active, setActive, onOpen }: Props) {
         </select>
         <input placeholder="New project name" value={newName} onChange={(e) => setNewName(e.target.value)} />
         <button disabled={!newName.trim()} onClick={() => void act("create", async () => { const p = await createProject(newName.trim()); setActive(p); setNewName(""); })}>Create project</button>
-        {active && <button onClick={() => { const n = prompt("Rename project", active.name); if (n) void act("rename", () => patchProject(active.id, { name: n })); }}>Rename</button>}
+        {active && <button onClick={() => void promptDialog("Rename project", "Enter the new project name.", active.name).then((n) => { if (n) void act("rename", () => patchProject(active.id, { name: n })); })}>Rename</button>}
         {active && <button onClick={() => void act("dup", async () => { const p = await duplicateProject(active.id); setActive(p); })}>Duplicate project</button>}
-        {active && <button onClick={() => { if (confirm(`Delete project "${active.name}" and all its cases and stored assets? This cannot be undone.`)) void act("delete", async () => { await deleteProject(active.id); setActive(null); }); }}>Delete project</button>}
+        {active && <button onClick={() => void confirmDialog("Delete project", `Delete project "${active.name}" and all its cases and stored assets? This cannot be undone.`).then((ok) => { if (ok) void act("delete", async () => { await deleteProject(active.id); setActive(null); }); })}>Delete project</button>}
       </div>
       {err && <div className="error">{err}</div>}
       {!active && <p className="muted">Select or create a project. A project holds cases that share terrain, receivers and limits; each case stores its input snapshot, result, warnings and the MATLAB code version that produced it.</p>}
@@ -125,7 +126,7 @@ export default function ProjectsView({ active, setActive, onOpen }: Props) {
                     <button className="primary" onClick={() => void getCase(c.id).then(onOpen)}>Open in view</button>{" "}
                     <button onClick={() => void getCase(c.id).then(setDetail)}>Results</button>{" "}
                     <button onClick={() => openDup(c)}>Duplicate</button>{" "}
-                    <button onClick={() => { if (confirm(`Delete case "${c.name}"?`)) void act("del", () => deleteCase(c.id)); }}>x</button>
+                    <button aria-label={`Delete case ${c.name}`} title="Delete case" onClick={() => void confirmDialog("Delete case", `Delete case "${c.name}"? This cannot be undone.`).then((ok) => { if (ok) void act("del", () => deleteCase(c.id)); })}>Delete</button>
                   </td>
                 </tr>
               ))}

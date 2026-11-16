@@ -395,6 +395,9 @@ export default function TerrainView({ lw, G, atm, mode, ready, enclosure, projec
 
   return (
     <div>
+      <details className="sec box" open={!dem}>
+        <summary>Scene setup: terrain, source, receivers, permitted levels{dem ? <span className="count">DEM loaded</span> : <span className="count">load a DEM to begin</span>}</summary>
+        <div className="sec-body">
       <div className="scene">
         <div>
           <h2>Terrain (DEM)</h2>
@@ -448,8 +451,12 @@ export default function TerrainView({ lw, G, atm, mode, ready, enclosure, projec
         </div>
         <LimitsEditor value={lim} onChange={setLim} />
       </div>
+        </div>
+      </details>
 
-      <h2>Obstacles (walls and buildings)</h2>
+      <details className="sec box" open={obstacles.length > 0}>
+        <summary>Obstacles (walls and buildings)<span className="count">{obstacles.length}</span></summary>
+        <div className="sec-body">
       <div className="tabs">
         <button disabled={!dem} onClick={addWall}>Add wall</button>
         <button disabled={!dem} onClick={addBuilding}>Add building</button>
@@ -492,8 +499,12 @@ export default function TerrainView({ lw, G, atm, mode, ready, enclosure, projec
           <button title="Delete obstacle" onClick={() => setObstacles(obstacles.filter((_, j) => j !== i))}>x</button>
         </div>
       ))}
+        </div>
+      </details>
 
-      <h2>Ground</h2>
+      <details className="sec box" open={areas.length > 0 || gDefault.trim() !== "" || gMethod !== "general"}>
+        <summary>Ground areas and method<span className="count">{areas.length} area{areas.length === 1 ? "" : "s"}</span></summary>
+        <div className="sec-body">
       <p className="note">The left-panel G applies everywhere. Draw areas with their own ground factor G (areas must not overlap); each region of the source-receiver path then takes the length-weighted mean (ISO 9613-2 Formula 10).</p>
       {areas.map((a, i) => (
         <div key={i} className="orow">
@@ -515,8 +526,10 @@ export default function TerrainView({ lw, G, atm, mode, ready, enclosure, projec
           </select>
         </label>
       </div>
+        </div>
+      </details>
 
-      <div className="tabs">
+      <div className="tabs runbar">
         <button className="primary" disabled={!ready || busy || !dem} onClick={() => run(true)}>{busy ? "Running" : "Run 3D map"}</button>
         {dem && (
           <SaveCase
